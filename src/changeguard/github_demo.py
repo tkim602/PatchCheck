@@ -106,7 +106,7 @@ def _file_content(client: GitHubClient, repo: str, path: str, ref: str, max_file
 
 def collect_pr(client: GitHubClient, repo: str, number: int) -> dict:
     pr = client.get(f"/repos/{repo}/pulls/{number}")
-    diff = client.get(f"/repos/{repo}/pulls/{number}", accept="application/vnd.github.v3.diff")
+    diff = client.get(f"/repos/{repo}/pulls/{number}", accept="application/vnd.github.v3.diff").rstrip("\n")
     base_sha, head_sha = pr["base"]["sha"], pr["head"]["sha"]
     issue_text, issue_source = issue_input(pr, lambda issue_number: client.get(f"/repos/{repo}/issues/{issue_number}"))
     before_after = {}
