@@ -1,12 +1,12 @@
-# ChangeGuard
+# PatchCheck
 
-ChangeGuard is an advisory pull-request triage tool built around a frozen, fine-tuned Qwen2.5-Coder-7B verifier. Given a PR description and diff, it produces a review-priority signal and shows a separate set of deterministic code-change findings.
+PatchCheck is an advisory pull-request triage tool built around a frozen, fine-tuned Qwen2.5-Coder-7B verifier. Given a PR description and diff, it produces a review-priority signal and shows a separate set of deterministic code-change findings.
 
 It does **not** approve a patch, auto-merge it, block it, or execute code from the PR.
 
 ## Why this project
 
-AI coding agents can produce patches quickly, but deciding whether a patch actually solves the issue without introducing a regression is still hard. ChangeGuard tests a narrower question: can a relatively small verifier learn a useful patch-correctness signal and fit into a normal GitHub review workflow?
+AI coding agents can produce patches quickly, but deciding whether a patch actually solves the issue without introducing a regression is still hard. PatchCheck tests a narrower question: can a relatively small verifier learn a useful patch-correctness signal and fit into a normal GitHub review workflow?
 
 The current claim is intentionally limited. The verifier works best on data close to its training distribution and becomes less reliable as the distribution shift gets harder.
 
@@ -38,11 +38,11 @@ The trend matters more than the best number. Fine-tuning gives a large gain on f
 
 A fuller breakdown, including confidence intervals, shortcut baselines, internal split names, and the archived DATA-04A stress test, is in [`docs/evaluations.md`](docs/evaluations.md).
 
-The deterministic rules are **not** part of the model score. In a frozen A/B/C evaluation, combining the static rule signal with the learned score reduced unsafe PR-AUC on the shortcut-controlled set from **0.5900 to 0.5150** (delta **-0.0750**, 95% CI **[-0.0981, -0.0559]**). Because of that result, ChangeGuard keeps the two paths separate.
+The deterministic rules are **not** part of the model score. In a frozen A/B/C evaluation, combining the static rule signal with the learned score reduced unsafe PR-AUC on the shortcut-controlled set from **0.5900 to 0.5150** (delta **-0.0750**, 95% CI **[-0.0981, -0.0559]**). Because of that result, PatchCheck keeps the two paths separate.
 
 ## Live replay demos
 
-The open `[Demo]` pull requests replay historical real-world open-source issue/candidate-patch pairs through the deployed ChangeGuard workflow.
+The open `[Demo]` pull requests replay historical real-world open-source issue/candidate-patch pairs through the deployed PatchCheck workflow.
 
 ```mermaid
 flowchart LR
@@ -52,18 +52,18 @@ flowchart LR
     D[8K tokenizer preflight]
     E[Modal L40S]
     F[Frozen fine-tuned verifier]
-    G[ChangeGuard review comment]
+    G[PatchCheck review comment]
 
     A --> B --> C --> D --> E --> F --> G
 ```
 
 These are deployment demos, not a generalization benchmark. Four are frozen training examples and one is a held-out example from the familiar evaluation distribution. Generalization is evaluated separately in the result tables above.
 
-- [#13, more-itertools](https://github.com/tkim602/ChangeGuard/pull/13): SAFE reference, `LOWER` signal
-- [#14, pandas](https://github.com/tkim602/ChangeGuard/pull/14): SAFE reference, `LOWER` signal
-- [#15, pynetdicom](https://github.com/tkim602/ChangeGuard/pull/15): UNSAFE reference, `ELEVATED` signal
-- [#16, moto](https://github.com/tkim602/ChangeGuard/pull/16): UNSAFE reference, `HIGH` signal
-- [#17, flake8-comprehensions](https://github.com/tkim602/ChangeGuard/pull/17): SAFE reference, held-out example, `LOWER` signal
+- [#13, more-itertools](https://github.com/tkim602/PatchCheck/pull/13): SAFE reference, `LOWER` signal
+- [#14, pandas](https://github.com/tkim602/PatchCheck/pull/14): SAFE reference, `LOWER` signal
+- [#15, pynetdicom](https://github.com/tkim602/PatchCheck/pull/15): UNSAFE reference, `ELEVATED` signal
+- [#16, moto](https://github.com/tkim602/PatchCheck/pull/16): UNSAFE reference, `HIGH` signal
+- [#17, flake8-comprehensions](https://github.com/tkim602/PatchCheck/pull/17): SAFE reference, held-out example, `LOWER` signal
 
 ## Architecture
 
@@ -79,7 +79,7 @@ flowchart LR
 
     STATIC --> FLAGS[Code-change findings]
 
-    SIGNAL --> OUT[ChangeGuard review]
+    SIGNAL --> OUT[PatchCheck review]
     FLAGS --> OUT
 ```
 
@@ -98,7 +98,7 @@ A static finding can disagree with the model signal. For example, a patch can re
 The reusable action can be added to another GitHub repository. It reads the PR, inspects the diff without executing PR code, and writes the result to the Actions summary.
 
 ```yaml
-name: ChangeGuard
+name: PatchCheck
 
 on:
   pull_request:
@@ -115,13 +115,13 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-      - uses: tkim602/ChangeGuard@main
+      - uses: tkim602/PatchCheck@main
         with:
           github-token: ${{ github.token }}
           pull-request-number: ${{ github.event.pull_request.number }}
 ```
 
-A complete example is in [`docs/examples/changeguard.yml`](docs/examples/changeguard.yml).
+A complete example is in [`docs/examples/changeguard.yml`](docs/examples/changeguard.yml). The example filename is kept for now so existing links do not break during the rename.
 
 The reusable action is intentionally CPU-only. It runs the deterministic inspection, does not execute PR code, and does not post comments to the target PR. Once this repository is public, other public repositories can reference the action directly.
 
@@ -129,7 +129,7 @@ The reusable action is intentionally CPU-only. It runs the deterministic inspect
 
 The GPU-backed verifier is currently **maintainer-gated**, not a public inference service. The adapter and calibration artifacts are not committed, and the Modal credentials stay in repository secrets.
 
-For this repository, the model workflow can run on owner-authored `[Demo]` PRs, on a PR labeled `changeguard-model`, or through manual workflow dispatch. Arbitrary PR authors cannot spend GPU credit just by opening a PR.
+For this repository, the model workflow can run on owner-authored `[Demo]` PRs, on a PR labeled `changeguard-model`, or through manual workflow dispatch. The label keeps its historical name for compatibility. Arbitrary PR authors cannot spend GPU credit just by opening a PR.
 
 ```mermaid
 flowchart LR
@@ -155,7 +155,9 @@ There are three separate workflows because they serve different purposes.
 | [`changeguard-evidence.yml`](.github/workflows/changeguard-evidence.yml) | pull request | read-only PR collection and deterministic inspection; uploads JSON/Markdown artifacts |
 | [`changeguard-full.yml`](.github/workflows/changeguard-full.yml) | gated PR event or manual dispatch | exact tokenizer preflight, Modal model inference, report rendering, and one marked PR comment |
 
-The model workflow uses a per-PR concurrency group with `cancel-in-progress: true`, so a newer run replaces an older one for the same PR. The GitHub job has a 20-minute timeout and the Modal worker has a 15-minute timeout. If preflight or model execution fails, ChangeGuard reports the model as unavailable instead of quietly returning a low-risk result.
+The workflow filenames are historical implementation names; their displayed names use PatchCheck.
+
+The model workflow uses a per-PR concurrency group with `cancel-in-progress: true`, so a newer run replaces an older one for the same PR. The GitHub job has a 20-minute timeout and the Modal worker has a 15-minute timeout. If preflight or model execution fails, PatchCheck reports the model as unavailable instead of quietly returning a low-risk result.
 
 ## Local development
 
@@ -171,10 +173,10 @@ pytest
 Offline analysis accepts a collected PR payload containing `patch`, `before_after`, `base_sha`, and `head_sha`:
 
 ```bash
-python -m changeguard.github_demo analyze \
+python -m patchcheck.github_demo analyze \
   --input pr.json \
-  --output changeguard.json \
-  --markdown changeguard.md
+  --output patchcheck.json \
+  --markdown patchcheck.md
 ```
 
 ## Reproducibility and limits
@@ -186,6 +188,6 @@ python -m changeguard.github_demo analyze \
 - The static analyzer does not execute code from the PR.
 - Training/evaluation datasets, model weights, and private experiment archives are not included in this repository.
 
-The deployed checkpoint is called `FT06` in the internal experiment record and a few source files. That name is kept for reproducibility, but the README uses the more descriptive term **fine-tuned verifier**.
+The deployed checkpoint is called `FT06` in the internal experiment record and a few implementation files. That name is kept for reproducibility, but the README uses the more descriptive term **fine-tuned verifier**.
 
 A short PDF project report is planned separately for the experiment timeline, dataset construction, ablations, failure cases, and evaluation details so this README can stay focused on the working system.
