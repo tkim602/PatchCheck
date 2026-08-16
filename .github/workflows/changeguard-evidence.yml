@@ -1,4 +1,4 @@
-name: ChangeGuard code-change flags
+name: PatchCheck code-change flags
 
 on:
   pull_request:
@@ -22,16 +22,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           PYTHONPATH: src
-        run: python -m changeguard.github_demo collect --repo "$GITHUB_REPOSITORY" --pr "${{ github.event.pull_request.number }}" --output pr.json
+        run: python -m patchcheck.github_demo collect --repo "$GITHUB_REPOSITORY" --pr "${{ github.event.pull_request.number }}" --output pr.json
       - name: Analyze code-change flags
         env:
           PYTHONPATH: src
         run: |
-          python -m changeguard.github_demo analyze --input pr.json --output changeguard.json --markdown changeguard.md
-          cat changeguard.md >> "$GITHUB_STEP_SUMMARY"
+          python -m patchcheck.github_demo analyze --input pr.json --output patchcheck.json --markdown patchcheck.md
+          cat patchcheck.md >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v7
         with:
-          name: changeguard-flags-${{ github.event.pull_request.number }}
+          name: patchcheck-flags-${{ github.event.pull_request.number }}
           path: |
-            changeguard.json
-            changeguard.md
+            patchcheck.json
+            patchcheck.md
