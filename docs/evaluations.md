@@ -53,7 +53,7 @@ On the shortcut-controlled set, simple structural and metadata baselines were cl
 | Zero-shot 7B | 0.5326 |
 | Fine-tuned verifier | 0.5972 |
 
-This is evidence that the fine-tuned score is not explained only by obvious features such as patch length or repository metadata. The absolute score is still modest, which is why ChangeGuard is framed as review triage rather than a universal correctness verifier.
+This is evidence that the fine-tuned score is not explained only by obvious features such as patch length or repository metadata. The absolute score is still modest, which is why PatchCheck is framed as review triage rather than a universal correctness verifier.
 
 ## Deterministic rules
 
