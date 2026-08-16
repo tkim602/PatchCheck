@@ -1,9 +1,11 @@
 import changeguard.github_demo as _legacy
 from changeguard.github_demo import *  # compatibility re-export
 
+_render_markdown = _legacy.render_markdown
+
 
 def _patchcheck_markdown(result, max_findings=12):
-    return _legacy.render_markdown(result, max_findings=max_findings).replace("## ChangeGuard review", "## PatchCheck review")
+    return _render_markdown(result, max_findings=max_findings).replace("## ChangeGuard review", "## PatchCheck review")
 
 
 def _cli():
