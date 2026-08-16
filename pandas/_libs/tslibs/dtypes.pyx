@@ -246,6 +246,7 @@ OFFSET_TO_PERIOD_FREQSTR: dict = {
     "BYS": "Y",
 }
 cdef dict c_OFFSET_DEPR_FREQSTR = {
+    "m": "ME",
     "M": "ME",
     "Q": "QE",
     "Q-DEC": "QE-DEC",
