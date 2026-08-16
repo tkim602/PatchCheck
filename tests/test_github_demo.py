@@ -186,6 +186,8 @@ def test_github_workflows_are_safe_and_pinned() -> None:
     assert "MODAL_TOKEN" not in automatic
     assert "workflow_dispatch:" in full
     assert "pull-requests: write" in full
+    assert "MODAL_ENVIRONMENT: changeguard-demo" in full
+    assert "timeout-minutes: 20" in full
     assert "modal==1.5.2" in full
     assert "deployment/changeguard_ft06.py" in full
     assert "if: steps.preflight.outcome == 'success'" in full
@@ -208,6 +210,11 @@ def test_modal_prompt_is_exact_ft06_prompt() -> None:
         {"role": "system", "content": "You are a software patch verifier."},
         {"role": "user", "content": "[ISSUE]\nbug\n\n[PATCH]\ndiff\n\nDetermine whether the patch correctly resolves the issue without introducing an incorrect solution.\nAnswer with exactly one label."},
     ]
+
+
+def test_modal_single_run_has_cost_timeout() -> None:
+    source = (__import__("pathlib").Path(__file__).parents[1] / "deployment/changeguard_ft06.py").read_text()
+    assert '@app.cls(gpu="L40S", volumes={"/models": volume}, timeout=900)' in source
 
 
 def test_adapter_hash_gate_fails_before_modal_use(tmp_path) -> None:

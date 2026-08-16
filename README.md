@@ -44,12 +44,14 @@ The adapter and calibration data are intentionally not committed. From a trusted
 ```bash
 python3 -m pip install modal==1.5.2
 modal setup
-python3 scripts/upload_ft06_adapter.py \
+MODAL_ENVIRONMENT=changeguard-demo python3 scripts/upload_ft06_adapter.py \
   --adapter /path/to/ft06/adapter \
   --calibration-predictions /path/to/calibration_verifier.jsonl
 ```
 
 Add `MODAL_TOKEN_ID` and `MODAL_TOKEN_SECRET` as repository Actions secrets. Then run **ChangeGuard frozen FT06 model** from the Actions tab with a PR number.
+
+The model workflow is maintainer-triggered, targets the isolated `changeguard-demo` Modal environment, permits one GPU at a time, and has a 15-minute Modal timeout plus a 20-minute Actions timeout. Visitors cannot spend GPU credit by opening a PR.
 
 PR text and the diff are sent to Modal during this manual run. Do not use the model workflow for code that cannot leave GitHub.
 
