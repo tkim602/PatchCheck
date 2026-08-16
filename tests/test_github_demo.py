@@ -191,7 +191,7 @@ def test_github_workflows_are_safe_and_pinned() -> None:
     assert "actions/setup-python@v5" not in automatic + full
     assert "actions/upload-artifact@v4" not in automatic + full
     assert "pull_request:" in automatic
-    assert "name: ChangeGuard code-change flags" in automatic
+    assert "name: PatchCheck code-change flags" in automatic
     assert "pull-requests: read" in automatic
     assert "MODAL_TOKEN" not in automatic
     assert "workflow_dispatch:" in full
@@ -220,13 +220,13 @@ def test_public_action_is_cpu_only_and_read_only() -> None:
     action = (root / "action.yml").read_text()
     example = (root / "docs/examples/changeguard.yml").read_text()
     assert "using: composite" in action
-    assert "changeguard.github_demo collect" in action
-    assert "changeguard.github_demo analyze" in action
+    assert "patchcheck.github_demo collect" in action
+    assert "patchcheck.github_demo analyze" in action
     assert "MODAL_TOKEN" not in action + example
-    assert "changeguard.github_demo comment" not in action + example
+    assert "patchcheck.github_demo comment" not in action + example
     assert "pull-requests: read" in example
     assert "issues: read" in example
-    assert "uses: tkim602/ChangeGuard@main" in example
+    assert "uses: tkim602/PatchCheck@main" in example
 
 
 def load_modal_module():
