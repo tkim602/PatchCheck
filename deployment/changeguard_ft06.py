@@ -76,7 +76,7 @@ if modal is not None:
     volume = modal.Volume.from_name("changeguard-ft06-models", create_if_missing=False)
     app = modal.App("changeguard-ft06-github", image=image)
 
-    @app.cls(gpu="L40S", volumes={"/models": volume}, timeout=1800)
+    @app.cls(gpu="L40S", volumes={"/models": volume}, timeout=900)
     class FT06:
         @modal.enter()
         def load(self) -> None:
