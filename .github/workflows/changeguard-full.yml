@@ -1,4 +1,4 @@
-name: ChangeGuard frozen FT06 model
+name: PatchCheck frozen verifier
 
 on:
   pull_request_target:
@@ -52,7 +52,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           PYTHONPATH: src
-        run: python -m changeguard.github_demo collect --repo "$GITHUB_REPOSITORY" --pr "$PR_NUMBER" --output pr.json
+        run: python -m patchcheck.github_demo collect --repo "$GITHUB_REPOSITORY" --pr "$PR_NUMBER" --output pr.json
       - name: Exact 8K preflight
         id: preflight
         continue-on-error: true
@@ -85,19 +85,19 @@ jobs:
               printf '{"status":"MODEL_NOT_RUN: MODAL_FAILED"}\n' > model.json
             fi
           fi
-          python -m changeguard.github_demo analyze --input pr.json --model model.json --output changeguard.json --markdown changeguard.md
-          cat changeguard.md >> "$GITHUB_STEP_SUMMARY"
+          python -m patchcheck.github_demo analyze --input pr.json --model model.json --output patchcheck.json --markdown patchcheck.md
+          cat patchcheck.md >> "$GITHUB_STEP_SUMMARY"
       - name: Update one PR comment
         env:
           GITHUB_TOKEN: ${{ github.token }}
           PYTHONPATH: src
-        run: python -m changeguard.github_demo comment --repo "$GITHUB_REPOSITORY" --pr "$PR_NUMBER" --markdown changeguard.md
+        run: python -m patchcheck.github_demo comment --repo "$GITHUB_REPOSITORY" --pr "$PR_NUMBER" --markdown patchcheck.md
       - uses: actions/upload-artifact@v7
         with:
-          name: changeguard-full-${{ github.event.pull_request.number || inputs.pull_request }}
+          name: patchcheck-full-${{ github.event.pull_request.number || inputs.pull_request }}
           path: |
-            changeguard.json
-            changeguard.md
+            patchcheck.json
+            patchcheck.md
             model.json
           if-no-files-found: ignore
       - name: Require completed model result
