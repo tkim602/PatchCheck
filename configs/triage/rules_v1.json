@@ -1,0 +1,27 @@
+{
+  "version": "changeguard-deterministic-v1",
+  "max_prompt_evidence": 8,
+  "max_prompt_chars": 1600,
+  "rules": [
+    {"id": "CG001", "name": "sensitive_auth_path", "severity": "high"},
+    {"id": "CG002", "name": "workflow_permission_expansion", "severity": "critical"},
+    {"id": "CG003", "name": "dependency_change", "severity": "medium"},
+    {"id": "CG004", "name": "migration_change", "severity": "high"},
+    {"id": "CG005", "name": "production_without_tests", "severity": "medium"},
+    {"id": "CG006", "name": "public_api_change", "severity": "high"},
+    {"id": "CG007", "name": "dynamic_execution", "severity": "critical"},
+    {"id": "CG008", "name": "shell_subprocess", "severity": "critical"},
+    {"id": "CG009", "name": "secret_like_literal", "severity": "critical"},
+    {"id": "CG010", "name": "validation_removed", "severity": "high"},
+    {"id": "CG011", "name": "broad_exception", "severity": "medium"},
+    {"id": "CG012", "name": "test_disabled", "severity": "high"},
+    {"id": "CG013", "name": "configuration_change", "severity": "medium"},
+    {"id": "CG014", "name": "workflow_change", "severity": "high"},
+    {"id": "CG015", "name": "documentation_only", "severity": "low"},
+    {"id": "CG016", "name": "test_only", "severity": "low"},
+    {"id": "CG017", "name": "import_change", "severity": "medium"},
+    {"id": "CG018", "name": "exception_handler_removed", "severity": "high"},
+    {"id": "CG019", "name": "permission_expansion", "severity": "critical"},
+    {"id": "CG020", "name": "large_diff", "severity": "medium"}
+  ]
+}
