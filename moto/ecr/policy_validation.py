@@ -15,6 +15,7 @@ REQUIRED_SELECTION_PROPERTIES = {"tagStatus", "countType", "countNumber"}
 VALID_SELECTION_PROPERTIES = {
     "tagPrefixList",
     "countUnit",
+    "maximumSemanticsRetainCount",
     *REQUIRED_SELECTION_PROPERTIES,
 }
 
