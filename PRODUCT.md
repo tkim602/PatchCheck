@@ -6,11 +6,11 @@ brand
 
 ## Users
 
-ChangeGuard is presented to software engineers, maintainers, and hiring teams evaluating whether its author can fine-tune, validate, and deploy an AI-assisted developer tool. Maintainers use the repository to inspect how a pull request is collected, scored, and reported without running untrusted code.
+PatchCheck is presented to software engineers, maintainers, and hiring teams evaluating whether its author can fine-tune, validate, and deploy an AI-assisted developer tool. Maintainers use the repository to inspect how a pull request is collected, scored, and reported without running untrusted code.
 
 ## Product Purpose
 
-ChangeGuard demonstrates advisory pull-request risk triage with a frozen FT06 verifier and a separate deterministic code inspection. It helps prioritize human review. It does not approve a patch, block a merge, or replace tests and code review. Success means a visitor can inspect real pull requests, understand the model's exposure to each example, and trace every reported result to an immutable issue and patch.
+PatchCheck demonstrates advisory pull-request risk triage with a frozen fine-tuned verifier and a separate deterministic code inspection. It helps prioritize human review. It does not approve a patch, block a merge, or replace tests and code review. Success means a visitor can inspect real pull requests, understand the model's exposure to each example, and trace every reported result to an immutable issue and patch.
 
 ## Brand Personality
 
