@@ -19,6 +19,25 @@ The project tests whether a relatively small verifier can learn useful patch-cor
 
 The deterministic rules are not part of the model score. A frozen A/B/C evaluation found that combining them with FT06 reduced hard-match unsafe PR-AUC from 0.5900 to 0.5150 (delta −0.0750; 95% CI [−0.0981, −0.0559]). ChangeGuard therefore exposes rules only as review context.
 
+## Live replay demos
+
+The open `[Demo]` pull requests replay historical real-world open-source issue and candidate-patch pairs through the deployed ChangeGuard workflow.
+
+Each demo runs the frozen FT06 verifier end to end:
+
+```text
+GitHub PR -> immutable diff collection -> tokenizer preflight
+          -> Modal GPU inference -> ChangeGuard review comment
+```
+
+These demos demonstrate the deployed workflow, not model generalization. Four are frozen FT06 training examples and one is a held-out ID example. Generalization is evaluated separately in the frozen benchmark results above.
+
+- [#13, more-itertools](https://github.com/tkim602/ChangeGuard/pull/13): SAFE reference, `LOWER` signal
+- [#14, pandas](https://github.com/tkim602/ChangeGuard/pull/14): SAFE reference, `LOWER` signal
+- [#15, pynetdicom](https://github.com/tkim602/ChangeGuard/pull/15): UNSAFE reference, `ELEVATED` signal
+- [#16, moto](https://github.com/tkim602/ChangeGuard/pull/16): UNSAFE reference, `HIGH` signal
+- [#17, flake8-comprehensions](https://github.com/tkim602/ChangeGuard/pull/17): SAFE reference, held-out ID, `LOWER` signal
+
 ## What runs on a PR
 
 ```text
