@@ -477,6 +477,23 @@ class DULServiceProvider(Thread):
             * :class:`A_P_ABORT`
             * :class:`P_DATA`
         """
+        # Don't send data primitives during association release/abort
+        # Sta7-Sta13 are release/abort states where we shouldn't send data
+        if isinstance(primitive, P_DATA) and self.state_machine.current_state in (
+            "Sta7",
+            "Sta8",
+            "Sta9",
+            "Sta10",
+            "Sta11",
+            "Sta12",
+            "Sta13",
+        ):
+            LOGGER.warning(
+                "Attempted to send P-DATA primitive while in release/abort state "
+                f"'{self.state_machine.current_state}'. The primitive will be ignored."
+            )
+            return
+
         # Event handler - ACSE sent primitive to the DUL service
         if isinstance(primitive, (A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT)):
             evt.trigger(self.assoc, evt.EVT_ACSE_SENT, {"primitive": primitive})
