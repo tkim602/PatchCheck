@@ -35,7 +35,21 @@ PR description + immutable diff ──> frozen FT06 verifier ──> model signa
 
 [`changeguard-evidence.yml`](.github/workflows/changeguard-evidence.yml) runs automatically on every PR using a GitHub-hosted CPU. It checks out the default branch, fetches immutable base/head SHAs through the GitHub API, inspects the diff without running PR code, and publishes JSON and Markdown artifacts. It needs no external secrets.
 
-[`changeguard-full.yml`](.github/workflows/changeguard-full.yml) is a maintainer-triggered workflow. It repeats the CPU inspection, performs the exact 8K tokenizer preflight, invokes the frozen adapter on a scale-to-zero Modal L40S worker, and updates one marked PR comment. The GPU exists only for the invocation.
+[`changeguard-full.yml`](.github/workflows/changeguard-full.yml) performs the exact 8K tokenizer preflight, invokes the frozen adapter on a scale-to-zero Modal L40S worker, and updates one marked PR comment. It runs automatically for owner-authored `[Demo]` PRs, or after a maintainer applies the `changeguard-model` label. The GPU exists only for the invocation.
+
+The CPU inspection can also be added to another repository. It writes the report to the Actions summary and does not post a comment:
+
+```yaml
+- uses: actions/setup-python@v7
+  with:
+    python-version: "3.12"
+- uses: tkim602/ChangeGuard@main
+  with:
+    github-token: ${{ github.token }}
+    pull-request-number: ${{ github.event.pull_request.number }}
+```
+
+The complete read-only workflow is in [`docs/examples/changeguard.yml`](docs/examples/changeguard.yml). This reusable action becomes available to repositories without access when ChangeGuard is made public; repository visibility is unchanged by this setup.
 
 ### Enable the frozen model workflow
 
@@ -49,9 +63,9 @@ MODAL_ENVIRONMENT=changeguard-demo python3 scripts/upload_ft06_adapter.py \
   --calibration-predictions /path/to/calibration_verifier.jsonl
 ```
 
-Add `MODAL_TOKEN_ID` and `MODAL_TOKEN_SECRET` as repository Actions secrets. Then run **ChangeGuard frozen FT06 model** from the Actions tab with a PR number.
+Add `MODAL_TOKEN_ID` and `MODAL_TOKEN_SECRET` as repository Actions secrets. Then apply the `changeguard-model` label to a selected PR, or run **ChangeGuard frozen FT06 model** from the Actions tab with a PR number.
 
-The model workflow is maintainer-triggered, targets the isolated `changeguard-demo` Modal environment, permits one GPU at a time, and has a 15-minute Modal timeout plus a 20-minute Actions timeout. Visitors cannot spend GPU credit by opening a PR.
+The model workflow is maintainer-gated, targets the isolated `changeguard-demo` Modal environment, permits one GPU at a time, and has a 15-minute Modal timeout plus a 20-minute Actions timeout. Visitors cannot spend GPU credit by opening a PR.
 
 PR text and the diff are sent to Modal during this manual run. Do not use the model workflow for code that cannot leave GitHub.
 

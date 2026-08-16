@@ -212,6 +212,22 @@ def test_github_workflows_are_safe_and_pinned() -> None:
     assert "status == 'complete'" in full
 
 
+def test_public_action_is_cpu_only_and_read_only() -> None:
+    from pathlib import Path
+
+    root = Path(__file__).parents[1]
+    action = (root / "action.yml").read_text()
+    example = (root / "docs/examples/changeguard.yml").read_text()
+    assert "using: composite" in action
+    assert "changeguard.github_demo collect" in action
+    assert "changeguard.github_demo analyze" in action
+    assert "MODAL_TOKEN" not in action + example
+    assert "changeguard.github_demo comment" not in action + example
+    assert "pull-requests: read" in example
+    assert "issues: read" in example
+    assert "uses: tkim602/ChangeGuard@main" in example
+
+
 def load_modal_module():
     path = __import__("pathlib").Path(__file__).parents[1] / "deployment/changeguard_ft06.py"
     spec = importlib.util.spec_from_file_location("changeguard_ft06_modal", path)

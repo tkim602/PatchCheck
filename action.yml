@@ -1,0 +1,36 @@
+name: ChangeGuard code-change flags
+description: Inspect a pull request without executing its code or using a GPU
+
+inputs:
+  github-token:
+    description: Token with read access to the pull request
+    required: true
+  pull-request-number:
+    description: Pull request number
+    required: true
+  repository:
+    description: Repository in owner/name form
+    required: false
+    default: ${{ github.repository }}
+
+runs:
+  using: composite
+  steps:
+    - name: Collect immutable pull request input
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        PYTHONPATH: ${{ github.action_path }}/src
+      run: >-
+        python3 -m changeguard.github_demo collect
+        --repo "${{ inputs.repository }}"
+        --pr "${{ inputs.pull-request-number }}"
+        --output pr.json
+    - name: Analyze code-change flags
+      shell: bash
+      env:
+        PYTHONPATH: ${{ github.action_path }}/src
+      run: |
+        python3 -m changeguard.github_demo analyze --input pr.json --output changeguard.json --markdown changeguard.md
+        cat changeguard.md >> "$GITHUB_STEP_SUMMARY"
+
