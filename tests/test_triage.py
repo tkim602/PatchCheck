@@ -27,10 +27,10 @@ PORTABLE_DIFF = """diff --git a/src/auth.py b/src/auth.py
 index 1111111..2222222 100644
 --- a/src/auth.py
 +++ b/src/auth.py
-@@ -1,5 +1,6 @@
+@@ -1,5 +1,5 @@
 -import os
 +import subprocess
-
+ # changeguard demo
 -def validate(user: str) -> bool:
 -    assert user
 +def validate(user: str, admin: bool = False) -> bool:
