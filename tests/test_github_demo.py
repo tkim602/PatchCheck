@@ -189,10 +189,13 @@ def test_github_workflows_are_safe_and_pinned() -> None:
     assert "MODAL_ENVIRONMENT: changeguard-demo" in full
     assert "timeout-minutes: 20" in full
     assert "modal==1.5.2" in full
+    assert "jinja2==3.1.6" in full
     assert "deployment/changeguard_ft06.py" in full
     assert "if: steps.preflight.outcome == 'success'" in full
     assert "MODEL_NOT_RUN: MODAL_FAILED" in full
     assert "MODEL_NOT_RUN: PREFLIGHT_FAILED" in full
+    assert "Require completed model result" in full
+    assert "status == 'complete'" in full
 
 
 def load_modal_module():
