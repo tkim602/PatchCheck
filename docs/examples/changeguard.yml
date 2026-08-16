@@ -1,4 +1,4 @@
-name: ChangeGuard
+name: PatchCheck
 
 on:
   pull_request:
@@ -15,7 +15,7 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-      - uses: tkim602/ChangeGuard@main
+      - uses: tkim602/PatchCheck@main
         with:
           github-token: ${{ github.token }}
           pull-request-number: ${{ github.event.pull_request.number }}
