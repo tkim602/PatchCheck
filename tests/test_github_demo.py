@@ -180,7 +180,9 @@ def test_github_workflows_are_safe_and_pinned() -> None:
     root = Path(__file__).parents[1]
     automatic = (root / ".github/workflows/changeguard-evidence.yml").read_text()
     full = (root / ".github/workflows/changeguard-full.yml").read_text()
-    assert "pull_request_target" not in automatic + full
+    assert "pull_request_target" not in automatic
+    assert "pull_request_target:" in full
+    assert "[opened, reopened, synchronize, labeled]" in full
     assert "actions/checkout@v7" in automatic + full
     assert "actions/setup-python@v7" in automatic + full
     assert "actions/upload-artifact@v7" in automatic + full
@@ -192,6 +194,11 @@ def test_github_workflows_are_safe_and_pinned() -> None:
     assert "pull-requests: read" in automatic
     assert "MODAL_TOKEN" not in automatic
     assert "workflow_dispatch:" in full
+    assert "github.event.pull_request.user.login == 'tkim602'" in full
+    assert "startsWith(github.event.pull_request.title, '[Demo]')" in full
+    assert "github.event.label.name == 'changeguard-model'" in full
+    assert "concurrency:" in full
+    assert "github.event.pull_request.number || inputs.pull_request" in full
     assert "pull-requests: write" in full
     assert "MODAL_ENVIRONMENT: changeguard-demo" in full
     assert "timeout-minutes: 20" in full
