@@ -69,7 +69,7 @@ def issue_input(pr: dict, issue_lookup: Callable[[int], dict]) -> tuple[str, str
         issue = issue_lookup(number)
         title, issue_body = issue.get("title") or "", issue.get("body") or ""
         if title or issue_body:
-            return f"{title}\n\n{issue_body}".strip(), f"linked_issue_{number}"
+            return f"{title}\n{issue_body}".strip(), f"linked_issue_{number}"
     value = f"{pr.get('title') or ''}\n\n{body}".strip()
     return value, "PR_DESCRIPTION_FALLBACK" if value else "INSUFFICIENT_CONTEXT"
 

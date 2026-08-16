@@ -64,7 +64,7 @@ def test_collect_uses_fixed_shas_and_linked_issue() -> None:
     assert result["head_sha"] == "head"
     assert result["issue_source"] == "linked_issue_5"
     assert result["context_status"] == "LINKED_ISSUE"
-    assert result["issue_text"] == "real issue\n\nexpected behavior"
+    assert result["issue_text"] == "real issue\nexpected behavior"
     assert result["before_after"]["src/auth.py"] == ["x=1\n", "x=2\n"]
     assert any(path.endswith("?ref=base") for _, path, _ in GitHubHandler.requests)
     assert any(path.endswith("?ref=head") for _, path, _ in GitHubHandler.requests)
