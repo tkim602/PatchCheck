@@ -174,6 +174,12 @@ def test_github_workflows_are_safe_and_pinned() -> None:
     automatic = (root / ".github/workflows/changeguard-evidence.yml").read_text()
     full = (root / ".github/workflows/changeguard-full.yml").read_text()
     assert "pull_request_target" not in automatic + full
+    assert "actions/checkout@v7" in automatic + full
+    assert "actions/setup-python@v7" in automatic + full
+    assert "actions/upload-artifact@v7" in automatic + full
+    assert "actions/checkout@v6" not in automatic + full
+    assert "actions/setup-python@v5" not in automatic + full
+    assert "actions/upload-artifact@v4" not in automatic + full
     assert "pull_request:" in automatic
     assert "name: ChangeGuard code-change flags" in automatic
     assert "pull-requests: read" in automatic
