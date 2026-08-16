@@ -63,6 +63,7 @@ def test_collect_uses_fixed_shas_and_linked_issue() -> None:
     assert result["base_sha"] == "base"
     assert result["head_sha"] == "head"
     assert result["issue_source"] == "linked_issue_5"
+    assert result["context_status"] == "LINKED_ISSUE"
     assert result["issue_text"] == "real issue\n\nexpected behavior"
     assert result["before_after"]["src/auth.py"] == ["x=1\n", "x=2\n"]
     assert any(path.endswith("?ref=base") for _, path, _ in GitHubHandler.requests)
@@ -74,6 +75,12 @@ def test_multiple_linked_issues_fall_back_to_pr_description() -> None:
 
     pr = {"title": "title", "body": "Fixes #1 and closes #2"}
     assert issue_input(pr, lambda _number: {}) == ("title\n\nFixes #1 and closes #2", "PR_DESCRIPTION_FALLBACK")
+
+
+def test_empty_pr_context_is_explicitly_insufficient() -> None:
+    from changeguard.github_demo import issue_input
+
+    assert issue_input({"title": "", "body": ""}, lambda _number: {}) == ("", "INSUFFICIENT_CONTEXT")
 
 
 def test_python_paths_include_deleted_files() -> None:
@@ -173,7 +180,9 @@ def test_github_workflows_are_safe_and_pinned() -> None:
     root = Path(__file__).parents[1]
     automatic = (root / ".github/workflows/changeguard-evidence.yml").read_text()
     full = (root / ".github/workflows/changeguard-full.yml").read_text()
-    assert "pull_request_target" not in automatic + full
+    assert "pull_request_target" not in automatic
+    assert "pull_request_target:" in full
+    assert "[opened, reopened, synchronize, labeled]" in full
     assert "actions/checkout@v7" in automatic + full
     assert "actions/setup-python@v7" in automatic + full
     assert "actions/upload-artifact@v7" in automatic + full
@@ -185,6 +194,11 @@ def test_github_workflows_are_safe_and_pinned() -> None:
     assert "pull-requests: read" in automatic
     assert "MODAL_TOKEN" not in automatic
     assert "workflow_dispatch:" in full
+    assert "github.event.pull_request.user.login == 'tkim602'" in full
+    assert "startsWith(github.event.pull_request.title, '[Demo]')" in full
+    assert "github.event.label.name == 'changeguard-model'" in full
+    assert "concurrency:" in full
+    assert "github.event.pull_request.number || inputs.pull_request" in full
     assert "pull-requests: write" in full
     assert "MODAL_ENVIRONMENT: changeguard-demo" in full
     assert "timeout-minutes: 20" in full
@@ -196,6 +210,22 @@ def test_github_workflows_are_safe_and_pinned() -> None:
     assert "MODEL_NOT_RUN: PREFLIGHT_FAILED" in full
     assert "Require completed model result" in full
     assert "status == 'complete'" in full
+
+
+def test_public_action_is_cpu_only_and_read_only() -> None:
+    from pathlib import Path
+
+    root = Path(__file__).parents[1]
+    action = (root / "action.yml").read_text()
+    example = (root / "docs/examples/changeguard.yml").read_text()
+    assert "using: composite" in action
+    assert "changeguard.github_demo collect" in action
+    assert "changeguard.github_demo analyze" in action
+    assert "MODAL_TOKEN" not in action + example
+    assert "changeguard.github_demo comment" not in action + example
+    assert "pull-requests: read" in example
+    assert "issues: read" in example
+    assert "uses: tkim602/ChangeGuard@main" in example
 
 
 def load_modal_module():
@@ -218,6 +248,12 @@ def test_modal_prompt_is_exact_ft06_prompt() -> None:
 def test_modal_single_run_has_cost_timeout() -> None:
     source = (__import__("pathlib").Path(__file__).parents[1] / "deployment/changeguard_ft06.py").read_text()
     assert '@app.cls(gpu="L40S", volumes={"/models": volume}, timeout=900)' in source
+
+
+def test_modal_rejects_empty_issue_context() -> None:
+    module = load_modal_module()
+
+    assert module.input_status({"issue_text": "  "}, 100) == "MODEL_NOT_RUN: INSUFFICIENT_CONTEXT"
 
 
 def test_adapter_hash_gate_fails_before_modal_use(tmp_path) -> None:

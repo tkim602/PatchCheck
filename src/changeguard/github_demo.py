@@ -70,7 +70,8 @@ def issue_input(pr: dict, issue_lookup: Callable[[int], dict]) -> tuple[str, str
         title, issue_body = issue.get("title") or "", issue.get("body") or ""
         if title or issue_body:
             return f"{title}\n\n{issue_body}".strip(), f"linked_issue_{number}"
-    return f"{pr.get('title') or ''}\n\n{body}".strip(), "PR_DESCRIPTION_FALLBACK"
+    value = f"{pr.get('title') or ''}\n\n{body}".strip()
+    return value, "PR_DESCRIPTION_FALLBACK" if value else "INSUFFICIENT_CONTEXT"
 
 
 def _python_paths(diff: str) -> list[str]:
@@ -121,6 +122,7 @@ def collect_pr(client: GitHubClient, repo: str, number: int) -> dict:
         "head_sha": head_sha,
         "issue_text": issue_text,
         "issue_source": issue_source,
+        "context_status": "LINKED_ISSUE" if issue_source.startswith("linked_issue_") else issue_source,
         "patch": diff,
         "before_after": before_after,
     }

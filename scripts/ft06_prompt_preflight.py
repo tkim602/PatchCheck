@@ -6,7 +6,7 @@ from pathlib import Path
 
 from transformers import AutoTokenizer
 
-from deployment.changeguard_ft06 import MODEL_ID, MODEL_REVISION, messages, token_status
+from deployment.changeguard_ft06 import MODEL_ID, MODEL_REVISION, input_status, messages
 
 
 def main() -> None:
@@ -23,7 +23,7 @@ def main() -> None:
         len(tokenizer(" REVIEW", add_special_tokens=False).input_ids),
     )
     tokens = len(prompt) + completion
-    status = token_status(tokens)
+    status = input_status(row, tokens)
     result = {"status": status, "input_tokens": tokens}
     print(json.dumps(result, sort_keys=True))
     if args.output:
