@@ -1,4 +1,4 @@
-name: ChangeGuard code-change flags
+name: PatchCheck code-change flags
 description: Inspect a pull request without executing its code or using a GPU
 
 inputs:
@@ -22,7 +22,7 @@ runs:
         GITHUB_TOKEN: ${{ inputs.github-token }}
         PYTHONPATH: ${{ github.action_path }}/src
       run: >-
-        python3 -m changeguard.github_demo collect
+        python3 -m patchcheck.github_demo collect
         --repo "${{ inputs.repository }}"
         --pr "${{ inputs.pull-request-number }}"
         --output pr.json
@@ -31,6 +31,6 @@ runs:
       env:
         PYTHONPATH: ${{ github.action_path }}/src
       run: |
-        python3 -m changeguard.github_demo analyze --input pr.json --output changeguard.json --markdown changeguard.md
-        cat changeguard.md >> "$GITHUB_STEP_SUMMARY"
+        python3 -m patchcheck.github_demo analyze --input pr.json --output patchcheck.json --markdown patchcheck.md
+        cat patchcheck.md >> "$GITHUB_STEP_SUMMARY"
 
