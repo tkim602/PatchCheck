@@ -364,7 +364,7 @@ def _markdown(value: object) -> str:
 def render_markdown(result: Mapping[str, object], max_findings: int = 12) -> str:
     model = dict(result["model"])
     deterministic = dict(result["deterministic"])
-    lines = ["<!-- changeguard-risk-triage-v1 -->", "## ChangeGuard Risk Triage", ""]
+    lines = ["<!-- changeguard-risk-triage-v1 -->", "## ChangeGuard review", ""]
     if model.get("status") == "complete":
         lines.extend([
             f"Model signal: **{_markdown(model['signal'])}**",
@@ -372,12 +372,12 @@ def render_markdown(result: Mapping[str, object], max_findings: int = 12) -> str
         ])
     else:
         lines.append(f"Model status: **{_markdown(model.get('status', 'MODEL_NOT_RUN'))}**")
-    lines.extend(["", "### Code-change flags"])
+    lines.extend(["", "### Code-change findings"])
     findings = list(deterministic.get("findings", []))
     if findings:
         for item in findings[:max_findings]:
             location = item["file"] + (f":{item['line']}" if item.get("line") is not None else "")
-            lines.append(f"- `{_markdown(item['rule_id'])}` **{_markdown(item['severity'])}** — {_markdown(item['message'])} (`{_markdown(location)}`)")
+            lines.append(f"- **{_markdown(item['severity'])}**: {_markdown(item['message'])} (`{_markdown(location)}`)")
         if len(findings) > max_findings:
             lines.append(f"- … {len(findings) - max_findings} additional finding(s) are in the JSON artifact.")
     else:

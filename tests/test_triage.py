@@ -116,7 +116,11 @@ def test_report_keeps_model_and_evidence_separate() -> None:
     assert "score" not in result["deterministic"]
     assert result["model"]["signal"] == "ELEVATED"
     assert "Model signal: **ELEVATED**" in report
-    assert "Code-change flags" in report
+    assert "## ChangeGuard review" in report
+    assert "### Code-change findings" in report
+    assert "CG001" not in report
+    assert "—" not in report
+    assert not any(symbol in report for symbol in ("✅", "❌", "⚠️", "🚀", "✨"))
     assert "Combined priority" not in report
     assert "Review-priority signal only; not a safety approval." in report
     assert "<!-- changeguard-risk-triage-v1 -->" in report

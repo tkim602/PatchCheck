@@ -63,6 +63,7 @@ def test_collect_uses_fixed_shas_and_linked_issue() -> None:
     assert result["base_sha"] == "base"
     assert result["head_sha"] == "head"
     assert result["issue_source"] == "linked_issue_5"
+    assert result["context_status"] == "LINKED_ISSUE"
     assert result["issue_text"] == "real issue\n\nexpected behavior"
     assert result["before_after"]["src/auth.py"] == ["x=1\n", "x=2\n"]
     assert any(path.endswith("?ref=base") for _, path, _ in GitHubHandler.requests)
@@ -74,6 +75,12 @@ def test_multiple_linked_issues_fall_back_to_pr_description() -> None:
 
     pr = {"title": "title", "body": "Fixes #1 and closes #2"}
     assert issue_input(pr, lambda _number: {}) == ("title\n\nFixes #1 and closes #2", "PR_DESCRIPTION_FALLBACK")
+
+
+def test_empty_pr_context_is_explicitly_insufficient() -> None:
+    from changeguard.github_demo import issue_input
+
+    assert issue_input({"title": "", "body": ""}, lambda _number: {}) == ("", "INSUFFICIENT_CONTEXT")
 
 
 def test_python_paths_include_deleted_files() -> None:
@@ -218,6 +225,12 @@ def test_modal_prompt_is_exact_ft06_prompt() -> None:
 def test_modal_single_run_has_cost_timeout() -> None:
     source = (__import__("pathlib").Path(__file__).parents[1] / "deployment/changeguard_ft06.py").read_text()
     assert '@app.cls(gpu="L40S", volumes={"/models": volume}, timeout=900)' in source
+
+
+def test_modal_rejects_empty_issue_context() -> None:
+    module = load_modal_module()
+
+    assert module.input_status({"issue_text": "  "}, 100) == "MODEL_NOT_RUN: INSUFFICIENT_CONTEXT"
 
 
 def test_adapter_hash_gate_fails_before_modal_use(tmp_path) -> None:

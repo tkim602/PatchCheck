@@ -53,6 +53,12 @@ def token_status(tokens: int) -> str:
     return "READY" if tokens <= 8192 else "MODEL_NOT_RUN: OVER_8192"
 
 
+def input_status(row: dict, tokens: int) -> str:
+    if not str(row.get("issue_text", "")).strip():
+        return "MODEL_NOT_RUN: INSUFFICIENT_CONTEXT"
+    return token_status(tokens)
+
+
 def _risk_percentile(value: float, calibration: list[float]) -> float:
     return bisect_right(calibration, value) / len(calibration)
 
@@ -128,7 +134,7 @@ if modal is not None:
             safe = self.tokenizer(" PASS", add_special_tokens=False).input_ids
             review = self.tokenizer(" REVIEW", add_special_tokens=False).input_ids
             tokens = max(len(prompt) + len(safe), len(prompt) + len(review))
-            status = token_status(tokens)
+            status = input_status(row, tokens)
             if status != "READY":
                 return {"status": status, "input_tokens": tokens}
             safe_logp = self._sequence_score(prompt, safe)
